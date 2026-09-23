@@ -1,0 +1,30 @@
+{
+  "plants": {
+    "1": {
+      "name": "Роза"
+    }
+  },
+  "fertilizers": {
+    "1": {
+      "name": "Универсальное",
+      "stock_ml": 70.0
+    }
+  },
+  "applications": [
+    {
+      "id": 1,
+      "plant_id": 1,
+      "fertilizer_id": 1,
+      "dosage_ml": 20.0,
+      "date": "2026-09-23"
+    },
+    {
+      "id": 2,
+      "plant_id": 1,
+      "fertilizer_id": 1,
+      "dosage_ml": 10.0,
+      "date": "2026-09-23"
+    }
+  ],
+  "next_application_id": 3
+}
