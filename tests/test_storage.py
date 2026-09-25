@@ -5,7 +5,7 @@ import json
 import pytest
 
 from services import add_plant, empty_data
-from storage import load_data, save_data
+from storage import data_to_json, load_data, save_data
 
 
 def test_json_round_trip(tmp_path):
@@ -13,7 +13,7 @@ def test_json_round_trip(tmp_path):
     data = empty_data()
     add_plant(data, "Роза")
     save_data(data, path)
-    assert load_data(path) == data
+    assert data_to_json(load_data(path)) == data_to_json(data)
     assert "Роза" in path.read_text(encoding="utf-8")
 
 

@@ -1,42 +1,9 @@
-"""Консольное меню сервиса учёта удобрений. Практическая работа 2."""
-
-from copy import deepcopy
-
-from services import (
-    add_fertilizer, add_plant, cancel_application, create_application,
-    find_applications, get_item, get_statistics, sort_applications,
-)
-from storage import DATA_FILE, load_data, save_data
-from utils import (
-    get_fertilizer_name, get_plant_name, read_date, read_id, read_number,
-    read_text,
-)
-
-MENU = """
-1 — Добавить растение
-2 — Добавить удобрение и его запас
-3 — Показать растения и удобрения
-4 — Записать применение удобрения
-5 — Показать журнал применений
-6 — Отменить ошибочную запись о применении
-7 — Найти применения по названию
-8 — Отсортировать журнал
-9 — Показать статистику
-0 — Выход
-"""
-
-
-def show_catalogs(data: dict) -> None:
-    """Показывает номера объектов для дальнейшего выбора."""
-    print("\nРастения:")
-    for key, plant in data["plants"].items():
-        print(f'{key}: {plant["name"]}')
+        print(plant)
     if not data["plants"]:
         print("Пока нет растений. Добавьте их через пункт 1.")
     print("Удобрения:")
-    for key, fertilizer in data["fertilizers"].items():
-        print(f'{key}: {fertilizer["name"]}; '
-              f'остаток {fertilizer["stock_ml"]:g} мл')
+    for fertilizer in data["fertilizers"].values():
+        print(fertilizer)
     if not data["fertilizers"]:
         print("Пока нет удобрений. Добавьте их через пункт 2.")
 
@@ -46,10 +13,10 @@ def show_applications(data: dict, records: list[dict]) -> None:
     if not records:
         print("Записей нет.")
     for record in records:
-        plant = get_item(data["plants"], record["plant_id"])["name"]
-        fertilizer = get_item(data["fertilizers"], record["fertilizer_id"])
-        print(f'№ {record["id"]} | {record["date"]} | {plant} | '
-              f'{fertilizer["name"]} | {record["dosage_ml"]:g} мл')
+        plant = get_item(data["plants"], record.plant_id)
+        fertilizer = get_item(data["fertilizers"], record.fertilizer_id)
+        print(f"№ {record.record_id} | {record.date} | {plant.name} | "
+              f"{fertilizer.name} | {record.dosage_ml:g} мл")
 
 
 def change_data(data: dict, choice: str) -> str:
@@ -72,7 +39,7 @@ def change_data(data: dict, choice: str) -> str:
         application_date = read_date()
         record = create_application(data, plant_id, fertilizer_id,
                                     dosage, application_date)
-        return f'Применение № {record["id"]} записано.'
+        return f"Применение № {record.record_id} записано."
     if not data["applications"]:
         raise ValueError("Журнал пуст, отменять нечего.")
     show_applications(data, data["applications"])
@@ -101,7 +68,7 @@ def show_result(data: dict, choice: str) -> None:
         print(f'Применений: {result["applications"]}')
         print(f'Растений в журнале: {result["plants_used"]}')
         for key, amount in result["usage_ml"].items():
-            name = data["fertilizers"][key]["name"]
+            name = data["fertilizers"][key].name
             print(f"{name}: использовано {amount:g} мл")
     else:
         print("Нет такого пункта. Введите число от 0 до 9.")
@@ -109,7 +76,7 @@ def show_result(data: dict, choice: str) -> None:
 
 def main() -> None:
     """Загружает данные и повторяет меню до команды выхода."""
-    print("СЕРВИС УЧЁТА УДОБРЕНИЙ ДЛЯ РАСТЕНИЙ — ПР2")
+    print("СЕРВИС УЧЁТА УДОБРЕНИЙ ДЛЯ РАСТЕНИЙ — ПР3")
     print("Учёт жидких удобрений в мл. Дозировку берите из инструкции.")
     print(f"Файл данных: {DATA_FILE}")
     try:
