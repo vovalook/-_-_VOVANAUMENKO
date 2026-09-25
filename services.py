@@ -1,3 +1,67 @@
+"""Действия с объектами растений, удобрений и применений."""
+
+from models import Application, Fertilizer, Plant
+from utils import clean_name
+
+
+def empty_data() -> dict:
+    """Создаёт пустые коллекции объектов и счётчик применений."""
+    return {"plants": {}, "fertilizers": {}, "applications": [],
+            "next_application_id": 1}
+
+
+def get_item(items: dict[int, object], item_id: int) -> object:
+    """Ищет объект по номеру."""
+    if item_id not in items:
+        raise ValueError("Запись с таким номером не найдена.")
+    return items[item_id]
+
+
+def next_catalog_id(items: dict[int, object]) -> int:
+    """Возвращает следующий номер для справочника."""
+    return max(items, default=0) + 1
+
+
+def check_unique_name(items: dict[int, object], name: str) -> str:
+    """Проверяет, что название не повторяется."""
+    name = clean_name(name)
+    for item in items.values():
+        if item.name.casefold() == name.casefold():
+            raise ValueError("Такое название уже есть в списке.")
+    return name
+
+
+def add_plant(data: dict, name: str) -> int:
+    """Создаёт объект Plant и добавляет его в справочник."""
+    name = check_unique_name(data["plants"], name)
+    item_id = next_catalog_id(data["plants"])
+    data["plants"][item_id] = Plant(item_id, name)
+    return item_id
+
+
+def add_fertilizer(data: dict, name: str, stock_ml: float) -> int:
+    """Создаёт объект Fertilizer и добавляет его в справочник."""
+    if stock_ml <= 0:
+        raise ValueError("Начальный запас должен быть больше нуля.")
+    name = check_unique_name(data["fertilizers"], name)
+    item_id = next_catalog_id(data["fertilizers"])
+    data["fertilizers"][item_id] = Fertilizer(item_id, name, stock_ml)
+    return item_id
+
+
+def check_dosage(dosage: float, available_ml: float) -> None:
+    """Проверяет дозировку через объект Fertilizer."""
+    temporary = Fertilizer(1, "Проверка", available_ml)
+    temporary.spend(dosage)
+
+
+def create_application(data: dict, plant_id: int, fertilizer_id: int,
+                       dosage: float, application_date: str) -> Application:
+    """Создаёт объект Application и уменьшает остаток удобрения."""
+    get_item(data["plants"], plant_id)
+    fertilizer = get_item(data["fertilizers"], fertilizer_id)
+    record = Application(data["next_application_id"], plant_id, fertilizer_id,
+                         dosage, application_date)
     fertilizer.spend(record.dosage_ml)
     data["applications"].append(record)
     data["next_application_id"] += 1

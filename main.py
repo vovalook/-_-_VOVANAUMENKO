@@ -1,3 +1,35 @@
+"""Консольное меню сервиса учёта удобрений. Практическая работа 3."""
+
+from copy import deepcopy
+
+from services import (
+    add_fertilizer, add_plant, cancel_application, create_application,
+    find_applications, get_item, get_statistics, sort_applications,
+)
+from storage import DATA_FILE, load_data, save_data
+from utils import (
+    get_fertilizer_name, get_plant_name, read_date, read_id, read_number,
+    read_text,
+)
+
+MENU = """
+1 — Добавить растение
+2 — Добавить удобрение и его запас
+3 — Показать растения и удобрения
+4 — Записать применение удобрения
+5 — Показать журнал применений
+6 — Отменить ошибочную запись о применении
+7 — Найти применения по названию
+8 — Отсортировать журнал
+9 — Показать статистику
+0 — Выход
+"""
+
+
+def show_catalogs(data: dict) -> None:
+    """Показывает номера объектов для дальнейшего выбора."""
+    print("\nРастения:")
+    for plant in data["plants"].values():
         print(plant)
     if not data["plants"]:
         print("Пока нет растений. Добавьте их через пункт 1.")

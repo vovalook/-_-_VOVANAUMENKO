@@ -1,3 +1,67 @@
+"""Классы предметной области для сервиса учёта удобрений."""
+
+from math import isfinite
+
+from utils import clean_name, parse_date
+
+
+class NamedEntity:
+    """Базовый класс для объектов с номером и названием."""
+
+    def __init__(self, item_id: int, name: str) -> None:
+        if item_id <= 0:
+            raise ValueError("Номер объекта должен быть положительным.")
+        self.item_id = item_id
+        self.name = clean_name(name)
+
+    def __str__(self) -> str:
+        return f"{self.item_id}: {self.name}"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return False
+        return self.to_data() == other.to_data()
+
+    def to_data(self) -> dict:
+        """Преобразует объект в словарь для JSON."""
+        return {"name": self.name}
+
+
+class Plant(NamedEntity):
+    """Растение, для которого учитывается применение удобрений."""
+
+    @classmethod
+    def from_data(cls, item_id: int, data: dict) -> "Plant":
+        """Создаёт растение из словаря JSON."""
+        return cls(item_id, data["name"])
+
+
+class Fertilizer(NamedEntity):
+    """Жидкое удобрение с учётом остатка в миллилитрах."""
+
+    def __init__(self, item_id: int, name: str, stock_ml: float) -> None:
+        super().__init__(item_id, name)
+        self.stock_ml = self._check_stock(stock_ml)
+
+    def __str__(self) -> str:
+        return f"{self.item_id}: {self.name}; остаток {self.stock_ml:g} мл"
+
+    @staticmethod
+    def _check_stock(value: float) -> float:
+        """Проверяет, что запас удобрения неотрицательный."""
+        if not isfinite(value) or value < 0:
+            raise ValueError("Запас удобрения должен быть неотрицательным.")
+        return float(value)
+
+    @classmethod
+    def from_data(cls, item_id: int, data: dict) -> "Fertilizer":
+        """Создаёт удобрение из словаря JSON."""
+        return cls(item_id, data["name"], data["stock_ml"])
+
+    def can_spend(self, dosage_ml: float) -> bool:
+        """Показывает, достаточно ли удобрения для указанной дозировки."""
+        return isfinite(dosage_ml) and 0 < dosage_ml <= self.stock_ml
+
     def spend(self, dosage_ml: float) -> None:
         """Уменьшает остаток после применения удобрения."""
         if not self.can_spend(dosage_ml):
