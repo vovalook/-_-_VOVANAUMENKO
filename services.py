@@ -1,67 +1,68 @@
-"""Действия с растениями, удобрениями и журналом применений."""
+"""Действия с объектами растений, удобрений и применений."""
 
-from math import isfinite
-
-from utils import clean_name, parse_date
+from models import Application, Fertilizer, Plant
+from utils import clean_name
 
 
 def empty_data() -> dict:
-    """Создаёт пустые коллекции и счётчик номеров применений."""
+    """Создаёт пустые коллекции объектов и счётчик применений."""
     return {"plants": {}, "fertilizers": {}, "applications": [],
             "next_application_id": 1}
 
 
-def get_item(items: dict, item_id: int) -> dict:
-    """Ищет объект по номеру. В JSON ключи словаря — строки."""
-    key = str(item_id)
-    if key not in items:
+def get_item(items: dict[int, object], item_id: int) -> object:
+    """Ищет объект по номеру."""
+    if item_id not in items:
         raise ValueError("Запись с таким номером не найдена.")
-    return items[key]
+    return items[item_id]
 
 
-def add_named_item(items: dict, name: str, **fields) -> int:
-    """Добавляет объект с уникальным названием и новым номером."""
+def next_catalog_id(items: dict[int, object]) -> int:
+    """Возвращает следующий номер для справочника."""
+    return max(items, default=0) + 1
+
+
+def check_unique_name(items: dict[int, object], name: str) -> str:
+    """Проверяет, что название не повторяется."""
     name = clean_name(name)
     for item in items.values():
-        if item["name"].casefold() == name.casefold():
+        if item.name.casefold() == name.casefold():
             raise ValueError("Такое название уже есть в списке.")
-    item_id = max((int(key) for key in items), default=0) + 1
-    items[str(item_id)] = {"name": name, **fields}
-    return item_id
+    return name
 
 
 def add_plant(data: dict, name: str) -> int:
-    """Добавляет растение в справочник."""
-    return add_named_item(data["plants"], name)
+    """Создаёт объект Plant и добавляет его в справочник."""
+    name = check_unique_name(data["plants"], name)
+    item_id = next_catalog_id(data["plants"])
+    data["plants"][item_id] = Plant(item_id, name)
+    return item_id
 
 
 def add_fertilizer(data: dict, name: str, stock_ml: float) -> int:
-    """Добавляет жидкое удобрение и его исходный запас в мл."""
-    if not isfinite(stock_ml) or stock_ml <= 0:
+    """Создаёт объект Fertilizer и добавляет его в справочник."""
+    if stock_ml <= 0:
         raise ValueError("Начальный запас должен быть больше нуля.")
-    return add_named_item(data["fertilizers"], name, stock_ml=stock_ml)
+    name = check_unique_name(data["fertilizers"], name)
+    item_id = next_catalog_id(data["fertilizers"])
+    data["fertilizers"][item_id] = Fertilizer(item_id, name, stock_ml)
+    return item_id
 
 
 def check_dosage(dosage: float, available_ml: float) -> None:
-    """Проверяет количество и достаточность запаса, а не агронорму."""
-    if not isfinite(dosage) or dosage <= 0:
-        raise ValueError("Дозировка должна быть больше нуля.")
-    if dosage > available_ml:
-        raise ValueError(
-            f"Недостаточно удобрения: осталось {available_ml:g} мл.")
+    """Проверяет дозировку через объект Fertilizer."""
+    temporary = Fertilizer(1, "Проверка", available_ml)
+    temporary.spend(dosage)
 
 
 def create_application(data: dict, plant_id: int, fertilizer_id: int,
-                       dosage: float, application_date: str) -> dict:
-    """Проверяет данные, добавляет запись и уменьшает остаток."""
+                       dosage: float, application_date: str) -> Application:
+    """Создаёт объект Application и уменьшает остаток удобрения."""
     get_item(data["plants"], plant_id)
     fertilizer = get_item(data["fertilizers"], fertilizer_id)
-    valid_date = parse_date(application_date)
-    check_dosage(dosage, fertilizer["stock_ml"])
-    record = {"id": data["next_application_id"], "plant_id": plant_id,
-              "fertilizer_id": fertilizer_id, "dosage_ml": dosage,
-              "date": valid_date}
-    fertilizer["stock_ml"] -= dosage
+    record = Application(data["next_application_id"], plant_id, fertilizer_id,
+                         dosage, application_date)
+    fertilizer.spend(record.dosage_ml)
     data["applications"].append(record)
     data["next_application_id"] += 1
     return record
@@ -70,12 +71,9 @@ def create_application(data: dict, plant_id: int, fertilizer_id: int,
 def cancel_application(data: dict, application_id: int) -> None:
     """Отменяет ошибочную запись и возвращает учтённый расход в запас."""
     for index, record in enumerate(data["applications"]):
-        if record["id"] == application_id:
-            fertilizer = get_item(data["fertilizers"], record["fertilizer_id"])
-            restored = fertilizer["stock_ml"] + record["dosage_ml"]
-            if not isfinite(restored):
-                raise ValueError("Слишком большое значение запаса.")
-            fertilizer["stock_ml"] = restored
+        if record.record_id == application_id:
+            fertilizer = get_item(data["fertilizers"], record.fertilizer_id)
+            fertilizer.restore(record.dosage_ml)
             del data["applications"][index]
             return
     raise ValueError("Применение с таким номером не найдено.")
@@ -85,25 +83,28 @@ def find_applications(data: dict, query: str):
     """Генератор: ищет записи по части названия растения или удобрения."""
     query = clean_name(query).casefold()
     for record in data["applications"]:
-        plant = get_item(data["plants"], record["plant_id"])["name"]
-        fertilizer = get_item(data["fertilizers"], record["fertilizer_id"])
-        if query in plant.casefold() or query in fertilizer["name"].casefold():
+        plant = get_item(data["plants"], record.plant_id)
+        fertilizer = get_item(data["fertilizers"], record.fertilizer_id)
+        plant_match = query in plant.name.casefold()
+        fertilizer_match = query in fertilizer.name.casefold()
+        if plant_match or fertilizer_match:
             yield record
 
 
-def sort_applications(records: list[dict], field: str) -> list[dict]:
+def sort_applications(records: list[Application],
+                      field: str) -> list[Application]:
     """Возвращает новый список, отсортированный по дате или дозировке."""
     if field not in ("date", "dosage_ml"):
         raise ValueError("Сортировать можно по дате или дозировке.")
-    return sorted(records, key=lambda record: record[field])
+    return sorted(records, key=lambda record: getattr(record, field))
 
 
 def get_statistics(data: dict) -> dict:
     """Считает записи и расход отдельно для каждого удобрения."""
     usage = {}
     for record in data["applications"]:
-        key = str(record["fertilizer_id"])
-        usage[key] = usage.get(key, 0) + record["dosage_ml"]
-    used_plants = {record["plant_id"] for record in data["applications"]}
+        key = record.fertilizer_id
+        usage[key] = usage.get(key, 0) + record.dosage_ml
+    used_plants = {record.plant_id for record in data["applications"]}
     return {"applications": len(data["applications"]),
             "plants_used": len(used_plants), "usage_ml": usage}
