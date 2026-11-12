@@ -1,0 +1,29 @@
+{% extends 'fertilizers/base.html' %}
+{% block title %}{{ item.name }}{% endblock %}
+{% block content %}
+<section class="detail-layout">
+    <div class="detail-main panel">
+        <a class="back-link" href="{% url 'home' %}">← Назад к списку</a>
+        <div class="pill">{{ item.type }}</div>
+        <h2>{{ item.name }}</h2>
+        <p class="detail-lead">Удобрение для поддержки роста, цветения и общего состояния декоративных цветов.</p>
+        <div class="info-grid">
+            <div><span>Подходит для</span><strong>{{ item.flowers_text }}</strong></div>
+            <div><span>Сезон</span><strong>{{ item.season }}</strong></div>
+            <div><span>Дозировка</span><strong>{{ item.dosage }}</strong></div>
+            <div><span>Цена</span><strong>{{ item.price }} ₽</strong></div>
+        </div>
+        <div class="note"><strong>Основной эффект:</strong> {{ item.effect }}.</div>
+    </div>
+    <aside class="detail-side panel">
+        <h3>Совет по применению</h3>
+        <p>Перед внесением удобрения почву лучше слегка увлажнить. Это делает подкормку безопаснее для корней и помогает раствору распределиться равномерно.</p>
+        <h3>Как выбрать подкормку</h3>
+        <ul>
+            <li>Учитывайте вид растения и период роста.</li>
+            <li>Соблюдайте дозировку, указанную на упаковке.</li>
+            <li>Не смешивайте удобрения без рекомендаций производителя.</li>
+        </ul>
+    </aside>
+</section>
+{% endblock %}
