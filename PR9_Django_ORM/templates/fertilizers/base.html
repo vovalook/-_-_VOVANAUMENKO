@@ -1,0 +1,34 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Удобрения для цветов{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header class="site-header">
+    <div class="container hero">
+        <div>
+            <div class="eyebrow">Уход за растениями · Подбор подкормки</div>
+            <h1><a href="{% url 'home' %}">Удобрения для цветов</a></h1>
+            <p class="hero-text">Подберите подкормку для любимых цветов: здесь собраны составы для роста, цветения и укрепления корней.</p>
+            <div class="tags">Роза <span>•</span> Тюльпан <span>•</span> Пион <span>•</span> Лилия <span>•</span> Ромашка</div>
+        </div>
+        <div class="hero-card">
+            <div class="hero-title">Для чего этот справочник</div>
+            <ul>
+                <li>подбор по названию и цветку</li>
+                <li>разные типы подкормки</li>
+                <li>дозировки и сезон применения</li>
+                <li>рекомендации по назначению</li>
+            </ul>
+        </div>
+    </div>
+</header>
+<main class="container">
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

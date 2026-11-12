@@ -1,0 +1,65 @@
+{% extends 'fertilizers/base.html' %}
+{% block title %}Подбор удобрений{% endblock %}
+{% block content %}
+<section class="panel">
+    <div class="section-head">
+        <h2>Подбор удобрений</h2>
+        <p>Выберите удобрение по названию, типу или подходящему цветку.</p>
+    </div>
+    <form method="get" class="filters">
+        <input type="text" name="q" value="{{ query }}" placeholder="Например: роза, бутон, калийное">
+        <select name="type">
+            <option value="">Все типы</option>
+            {% for t in types %}
+            <option value="{{ t }}" {% if selected_type == t %}selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+        </select>
+        <select name="sort" aria-label="Сортировка">
+            <option value="name" {% if selected_sort == 'name' %}selected{% endif %}>По названию</option>
+            <option value="price" {% if selected_sort == 'price' %}selected{% endif %}>Сначала дешевле</option>
+            <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Сначала дороже</option>
+            <option value="type" {% if selected_sort == 'type' %}selected{% endif %}>По типу</option>
+        </select>
+        <button type="submit">Показать</button>
+    </form>
+    <p class="muted">В каталоге {{ summary.quantity }} удобрений.
+        Средняя цена: {{ summary.average_price|floatformat:0 }} ₽.</p>
+    <div class="cards">
+        {% for item in items %}
+        <article class="card">
+            <div class="pill">{{ item.type }}</div>
+            <h3>{{ item.name }}</h3>
+            <div class="muted">Подходит для: {{ item.flowers_text }}</div>
+            <dl>
+                <div><dt>Сезон</dt><dd>{{ item.season }}</dd></div>
+                <div><dt>Дозировка</dt><dd>{{ item.dosage }}</dd></div>
+                <div><dt>Эффект</dt><dd>{{ item.effect }}</dd></div>
+            </dl>
+            <div class="card-bottom">
+                <span class="price">{{ item.price }} ₽</span>
+                <a class="more" href="{% url 'detail' item.id %}">Подробнее</a>
+            </div>
+        </article>
+        {% empty %}
+        <p>По вашему запросу ничего не найдено.</p>
+        {% endfor %}
+    </div>
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pages" aria-label="Страницы каталога">
+        {% if page_obj.has_previous %}
+        <a href="?q={{ query|urlencode }}&amp;type={{ selected_type|urlencode }}&amp;sort={{ selected_sort }}&amp;page={{ page_obj.previous_page_number }}">Назад</a>
+        {% endif %}
+        {% for number in page_obj.paginator.page_range %}
+        {% if number == page_obj.number %}
+        <strong aria-current="page">{{ number }}</strong>
+        {% else %}
+        <a href="?q={{ query|urlencode }}&amp;type={{ selected_type|urlencode }}&amp;sort={{ selected_sort }}&amp;page={{ number }}">{{ number }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <a href="?q={{ query|urlencode }}&amp;type={{ selected_type|urlencode }}&amp;sort={{ selected_sort }}&amp;page={{ page_obj.next_page_number }}">Далее</a>
+        {% endif %}
+    </nav>
+    {% endif %}
+</section>
+{% endblock %}
