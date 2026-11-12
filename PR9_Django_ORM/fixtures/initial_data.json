@@ -1,0 +1,190 @@
+[
+  {
+    "model": "fertilizers.flower",
+    "pk": 1,
+    "fields": {
+      "name": "Роза",
+      "color": "Красный"
+    }
+  },
+  {
+    "model": "fertilizers.flower",
+    "pk": 2,
+    "fields": {
+      "name": "Тюльпан",
+      "color": "Жёлтый"
+    }
+  },
+  {
+    "model": "fertilizers.flower",
+    "pk": 3,
+    "fields": {
+      "name": "Пион",
+      "color": "Розовый"
+    }
+  },
+  {
+    "model": "fertilizers.flower",
+    "pk": 4,
+    "fields": {
+      "name": "Лилия",
+      "color": "Белый"
+    }
+  },
+  {
+    "model": "fertilizers.flower",
+    "pk": 5,
+    "fields": {
+      "name": "Ромашка",
+      "color": "Белый"
+    }
+  },
+  {
+    "model": "fertilizers.fertilizer",
+    "pk": 1,
+    "fields": {
+      "name": "Флора Рост",
+      "type": "Комплексное",
+      "season": "Весна–лето",
+      "dosage": "10 мл на 1 л воды",
+      "effect": "ускоряет рост, укрепляет стебли",
+      "price": 280
+    }
+  },
+  {
+    "model": "fertilizers.fertilizer",
+    "pk": 2,
+    "fields": {
+      "name": "Бутон Плюс",
+      "type": "Фосфорное",
+      "season": "Период бутонизации",
+      "dosage": "8 мл на 1 л воды",
+      "effect": "улучшает цветение и размер бутонов",
+      "price": 310
+    }
+  },
+  {
+    "model": "fertilizers.fertilizer",
+    "pk": 3,
+    "fields": {
+      "name": "Калий Баланс",
+      "type": "Калийное",
+      "season": "Лето–осень",
+      "dosage": "12 мл на 2 л воды",
+      "effect": "повышает устойчивость к перепадам температуры",
+      "price": 260
+    }
+  },
+  {
+    "model": "fertilizers.fertilizer",
+    "pk": 4,
+    "fields": {
+      "name": "Лист Сила",
+      "type": "Азотное",
+      "season": "Весна",
+      "dosage": "5 мл на 1 л воды",
+      "effect": "поддерживает зелёную массу и обновление листьев",
+      "price": 190
+    }
+  },
+  {
+    "model": "fertilizers.fertilizer",
+    "pk": 5,
+    "fields": {
+      "name": "Корень Актив",
+      "type": "Комплексное",
+      "season": "После пересадки",
+      "dosage": "7 мл на 1 л воды",
+      "effect": "стимулирует укоренение и снижает стресс",
+      "price": 230
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 1,
+    "fields": {
+      "fertilizer": 1,
+      "flower": 1
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 2,
+    "fields": {
+      "fertilizer": 1,
+      "flower": 3
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 3,
+    "fields": {
+      "fertilizer": 1,
+      "flower": 4
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 4,
+    "fields": {
+      "fertilizer": 2,
+      "flower": 1
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 5,
+    "fields": {
+      "fertilizer": 2,
+      "flower": 2
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 6,
+    "fields": {
+      "fertilizer": 3,
+      "flower": 3
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 7,
+    "fields": {
+      "fertilizer": 3,
+      "flower": 5
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 8,
+    "fields": {
+      "fertilizer": 4,
+      "flower": 4
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 9,
+    "fields": {
+      "fertilizer": 4,
+      "flower": 5
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 10,
+    "fields": {
+      "fertilizer": 5,
+      "flower": 2
+    }
+  },
+  {
+    "model": "fertilizers.fertilizerflower",
+    "pk": 11,
+    "fields": {
+      "fertilizer": 5,
+      "flower": 4
+    }
+  }
+]
